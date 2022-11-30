@@ -20,16 +20,18 @@ btnClear.forEach(button => {button.addEventListener('click', clear)});
 
 function number(event) {
   button = event.target;
-  return (displayValue == 0 && button.value == 0) ? false : updateDisplay(button.value);
+  button = Number(button.value);
+  return (displayValue === 0 && button === 0) ? false : updateDisplay(button);
 }
 
-function updateDisplay(btnValue) {
-  displayValue === 0 ? (displayValue = btnValue) : (displayValue = displayValue + btnValue);
+function updateDisplay(buttonValue) {
+  displayValue === 0 ? (displayValue = buttonValue) : (displayValue = displayValue + buttonValue.toString()); // converting to string
+  displayValue = Number(displayValue); //converting to nubmer
   return display.textContent = displayValue; 
 }
 
 function resetDisplay() {
-  displayValue = undefined;
+  displayValue = 0;
 }
 
 function operator(event) {
@@ -39,7 +41,7 @@ function operator(event) {
     value1 = displayValue;
     resetDisplay();
   } else {
-    value2 = resetDisplay;
+    value2 = displayValue;
     equals(operatorValue);
   }
 }
@@ -47,15 +49,22 @@ function operator(event) {
 function equals(operatorValue) {
   if (operatorValue === "/" && value2 === 0) {
     clear();
-  } else {
-    if (operatorValue === "+") {
-      add();  
-    } else if { 
-    } else if {
-    } else if {
-    } else if {
+  } else { 
+    value2 = displayValue;
+    operate();
   }
-  
+}
+
+function operate() {
+  if (operatorValue === "+") {add(value1, value2);}
+  else if (operatorValue === "-") {subtract(value1, value2);}
+  else if (operatorValue === "*") {multiply(value1, value2);}
+  else if (operatorValue === "/") {divide(value1, value2);}
+  displayValue = answer;
+  value1 = answer; // !!!
+  value2 = undefined;
+  display.textContent = displayValue; 
+  resetDisplay();
 }
 
 
@@ -64,39 +73,30 @@ function dot() {
 }
 
 function clear() {
-  null
+  displayValue = undefined;
+  operatorValue = undefined;
+  value1 = 0;
+  value2 = undefined;
 }
+
 
 
 
 
 
 function add (a, b) {
-  return a + b;
+  return answer = a + b;
 }
 
 function subtract (a, b) {
-  return a - b;
+  return answer = a - b;
 }
 
 function multiply (a, b) {
-  return a * b;
+  return answer = a * b;
 }
 
 function divide (a, b) {
-  return a / b;
+  return answer = a / b;
 }
 
-
-
-function opertate (operator, a, b) {
-    if (operator === "+") {
-        add(a, b);
-    } else if (operator === "-"){
-        subtract(a, b);
-    } else if (operator === "*"){
-        multiply(a, b);
-    } else if (operator === "/"){
-        divide(a, b);
-    }
-}
