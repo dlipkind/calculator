@@ -19,29 +19,30 @@ btnDot.forEach(button => {button.addEventListener('click', dot)});
 btnClear.forEach(button => {button.addEventListener('click', clear)});
 
 function number(event) {
-  button = event.target;
-  button = Number(button.value);
-  return (displayValue === 0 && button === 0) ? false : updateDisplay(button);
+  button = Number(event.target.value);
+  if (displayValue === 0 && button === 0) {
+    displayValue = 0;
+    return display.textContent = displayValue; 
+  } else {
+    updDisplayValue(button);
+  }
 }
 
-function updateDisplay(buttonValue) {
+function updDisplayValue(buttonValue) {
   displayValue === 0 ? (displayValue = buttonValue) : (displayValue = displayValue + buttonValue.toString()); // converting to string
   displayValue = Number(displayValue); //converting to nubmer
   return display.textContent = displayValue; 
 }
 
-function resetDisplay() {
-  displayValue = 0;
-}
-
 function operator(event) {
-  button = event.target;
-  operatorValue = button.value;
-  if (value1 === undefined) {
+  if (value1 !== undefined && value2 !== undefined && operatorValue !== undefined && displayValue !== value1) {
+    operatorValue2 = event.target.value;
+    equals(operatorValue); 
+  } else if (value1 === undefined) {
+    operatorValue = event.target.value;
     value1 = displayValue;
-    resetDisplay();
+    displayValue = 0;
   } else {
-    value2 = displayValue;
     equals(operatorValue);
   }
 }
@@ -60,11 +61,12 @@ function operate() {
   else if (operatorValue === "-") {subtract(value1, value2);}
   else if (operatorValue === "*") {multiply(value1, value2);}
   else if (operatorValue === "/") {divide(value1, value2);}
-  displayValue = answer;
+  
   value1 = answer; // !!!
   value2 = undefined;
-  display.textContent = displayValue; 
-  resetDisplay();
+  displayValue = 0;
+  operatorValue = operatorValue2;
+  display.textContent = answer; 
 }
 
 
