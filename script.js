@@ -5,100 +5,133 @@ const btnDot = document.querySelectorAll('.dot');
 const btnClear = document.querySelectorAll('.clear');
 const display = document.querySelector('.display');
 
-let displayValue = 0;
-let value1;
-let value2;
-let operatorValue;
-
-display.textContent = displayValue; 
-
 btnNumbers.forEach(button => {button.addEventListener('click', number)});
 btnOperators.forEach(button => {button.addEventListener('click', operator)});
 btnEqual.forEach(button => {button.addEventListener('click', equals)});
 btnDot.forEach(button => {button.addEventListener('click', dot)});
 btnClear.forEach(button => {button.addEventListener('click', clear)});
 
-function number(event) {
+let storageNum; 
+let firstNum;
+let secondNum;
+let mainOperator;
+let nextOperator;
+
+display.textContent = 0; 
+
+function number(event) { //checks for errors and calls for display update
+  checkError();
   button = Number(event.target.value);
-  if (displayValue === 0 && button === 0) {
-    displayValue = 0;
-    return display.textContent = displayValue; 
+  if (storageNum === undefined && button === 0) { //prevents 0 being assinged multiple times 
+    storageNum = 0;
+    return display.textContent = storageNum; 
   } else {
-    updDisplayValue(button);
+    updDisplay(button);
   }
 }
 
-function updDisplayValue(buttonValue) {
-  displayValue === 0 ? (displayValue = buttonValue) : (displayValue = displayValue + buttonValue.toString()); // converting to string
-  displayValue = Number(displayValue); //converting to nubmer
-  return display.textContent = displayValue; 
-}
-
-function operator(event) {
-  if (value1 !== undefined && value2 !== undefined && operatorValue !== undefined && displayValue !== value1) {
-    operatorValue2 = event.target.value;
-    equals(operatorValue); 
-  } else if (value1 === undefined) {
-    operatorValue = event.target.value;
-    value1 = displayValue;
-    displayValue = 0;
-  } else {
-    equals(operatorValue);
-  }
-}
-
-function equals(operatorValue) {
-  if (operatorValue === "/" && value2 === 0) {
+function dot(event) {
+  checkError();
+  dotSign = event.target.value;
+  if (firstNum === Number(display.textContent)) { //checks if calculation needs to start over after pressing "."
     clear();
-  } else { 
-    value2 = displayValue;
-    operate();
+    dot(event);
+  } else if (storageNum === undefined) { 
+    updDisplay(dotSign);
+  } else if (storageNum.toString().indexOf(dotSign) > -1) { //prevents from "." being assigned many times 
+    return;
+  } else {
+    updDisplay(dotSign);
   }
 }
 
-function operate() {
-  if (operatorValue === "+") {add(value1, value2);}
-  else if (operatorValue === "-") {subtract(value1, value2);}
-  else if (operatorValue === "*") {multiply(value1, value2);}
-  else if (operatorValue === "/") {divide(value1, value2);}
-  
-  value1 = answer; // !!!
-  value2 = undefined;
-  displayValue = 0;
-  operatorValue = operatorValue2;
-  display.textContent = answer; 
+function operator(event) { //check for number assignment and the need for calculation
+  checkError();
+  let operatorValue = event.target.value;
+  if (firstNum === undefined) {
+    firstNum = storageNum;
+    checkDot("firstNum");
+    mainOperator = operatorValue;
+    storageNum = undefined; //because we will need to fill in the secondNum
+  } else if (firstNum !== undefined && secondNum === undefined && storageNum !== undefined){
+    nextOperator = operatorValue; //saving next operator to be assigned to main AFTER calculation
+    secondNum = storageNum;
+    calculate(mainOperator);
+    mainOperator = nextOperator;
+  } else { //if non above true let change the operator
+    checkDot("firstNum");
+    mainOperator = operatorValue;
+  }
 }
 
+function checkError() {
+  if (display.textContent === "ERROR") {
+    clear();
+  } else {
+    return;
+  }
+}
 
-function dot() {
-  null
+function checkDot(numType) { //prevents "x." numbers (removes ".")
+  if (numType === "firstNum") {
+    if (firstNum.toString().endsWith(".")) {
+      firstNum = Number(firstNum.slice(0, -1));
+    }
+  } else if (numType === "secondNum") {
+    if (secondNum.toString().endsWith(".")) {
+      secondNum = Number(secondNum.slice(0, -1));
+    }
+  }
+}
+
+function updDisplay(buttonValue) { //updates display
+  if (buttonValue === ".") { 
+    if (storageNum === undefined) {
+      storageNum = 0 + buttonValue.toString();
+    } else {
+      storageNum = storageNum + buttonValue.toString(); 
+    }
+  } else if (storageNum === undefined) {
+    storageNum = buttonValue; //prevents values to be assigned after 0
+  } else {
+    storageNum = storageNum + buttonValue.toString(); // string prevents numbers from being calculated
+    storageNum = Number(storageNum); //converts back to number value for future calculation
+  }
+  return display.textContent = storageNum; 
+}
+
+function calculate(mainOperator) {
+  if (mainOperator === "+") {answer = firstNum + secondNum;}
+  else if (mainOperator === "-") {answer = firstNum - secondNum;}
+  else if (mainOperator === "*") {answer = firstNum * secondNum;}
+  else if (mainOperator === "/") {answer = firstNum / secondNum;}
+
+  firstNum = answer;
+  secondNum = undefined;
+  storageNum = undefined;
+  display.textContent = answer;
+}
+
+function equals() {
+  if (storageNum === undefined || mainOperator === undefined) { //prevents equal sign-related errors
+    return;
+  } else if (mainOperator === "/" && storageNum === 0) {
+    clear();
+    display.textContent = "ERROR";
+  } else { 
+    secondNum = storageNum;
+    checkDot("secondNum");
+    calculate(mainOperator);
+  }
 }
 
 function clear() {
-  displayValue = undefined;
+  answer = undefined;
+  storageNum = undefined;
+  firstNum = undefined;
+  secondNum = undefined;
   operatorValue = undefined;
-  value1 = 0;
-  value2 = undefined;
+  mainOperator = undefined;
+  nextOperator = undefined;
+  display.textContent = 0;
 }
-
-
-
-
-
-
-function add (a, b) {
-  return answer = a + b;
-}
-
-function subtract (a, b) {
-  return answer = a - b;
-}
-
-function multiply (a, b) {
-  return answer = a * b;
-}
-
-function divide (a, b) {
-  return answer = a / b;
-}
-
