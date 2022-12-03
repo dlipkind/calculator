@@ -16,6 +16,7 @@ let firstNum;
 let secondNum;
 let mainOperator;
 let nextOperator;
+let answer;
 
 display.textContent = 0; 
 
@@ -33,7 +34,7 @@ function number(event) { //checks for errors and calls for display update
 function dot(event) {
   checkError();
   dotSign = event.target.value;
-  if (firstNum === Number(display.textContent)) { //checks if calculation needs to start over after pressing "."
+  if (firstNum === answer && answer !== undefined) { //checks if calculation needs to start over after pressing "."
     clear();
     dot(event);
   } else if (storageNum === undefined) { 
@@ -48,9 +49,12 @@ function dot(event) {
 function operator(event) { //check for number assignment and the need for calculation
   checkError();
   let operatorValue = event.target.value;
-  if (firstNum === undefined) {
+  if (firstNum === undefined && secondNum === undefined && storageNum === undefined) {//prevents an error when operator is clicked first !!!!!
+    return;
+  } else if (firstNum === undefined) {
     firstNum = storageNum;
     checkDot("firstNum");
+    checkString(firstNum, "firstNum");
     mainOperator = operatorValue;
     storageNum = undefined; //because we will need to fill in the secondNum
   } else if (firstNum !== undefined && secondNum === undefined && storageNum !== undefined){
@@ -84,6 +88,14 @@ function checkDot(numType) { //prevents "x." numbers (removes ".")
   }
 }
 
+function checkString(num, numType) { //converts long decibel numbers to number format
+  if (typeof num === 'string' && numType === "firstNum") {
+    firstNum = Number(firstNum);
+  } else if (typeof num === 'string' && numType === "secondNum") {
+    secondNum = Number(secondNum);
+  }
+}
+
 function updDisplay(buttonValue) { //updates display
   if (buttonValue === ".") { 
     if (storageNum === undefined) {
@@ -93,6 +105,8 @@ function updDisplay(buttonValue) { //updates display
     }
   } else if (storageNum === undefined) {
     storageNum = buttonValue; //prevents values to be assigned after 0
+  } else if ((storageNum.split(".").length - 1) <= 1) {
+    storageNum = storageNum + buttonValue.toString(); //allows 0.00...
   } else {
     storageNum = storageNum + buttonValue.toString(); // string prevents numbers from being calculated
     storageNum = Number(storageNum); //converts back to number value for future calculation
@@ -113,7 +127,7 @@ function calculate(mainOperator) {
 }
 
 function equals() {
-  if (storageNum === undefined || mainOperator === undefined) { //prevents equal sign-related errors
+  if (firstNum === answer && storageNum === undefined) { //prevents equal sign-related errors
     return;
   } else if (mainOperator === "/" && storageNum === 0) {
     clear();
@@ -121,6 +135,7 @@ function equals() {
   } else { 
     secondNum = storageNum;
     checkDot("secondNum");
+    checkString(secondNum, "secondNum");
     calculate(mainOperator);
   }
 }
